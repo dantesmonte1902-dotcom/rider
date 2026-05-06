@@ -3,6 +3,7 @@
 # Place this file at: <DocumentRoot>/rider/.htaccess
 # (e.g. C:\xampp\htdocs\rider\.htaccess)
 
+# Disable directory listing for security (prevents browsing folder contents)
 Options -Indexes
 
 RewriteEngine On

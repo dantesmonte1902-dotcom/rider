@@ -91,11 +91,12 @@ if ($path === '/admin/applications' && $method === 'GET') {
     }
 
     view('admin/applications', [
-        'applications' => $applications,
+        'applications'  => $applications,
         'filter_status' => $status,
         'filter_search' => $search,
         'db_error'      => $db_error ?? '',
         'success'       => flash_get('app_success'),
+        'error'         => flash_get('app_error'),
     ]);
     exit;
 }
@@ -110,7 +111,7 @@ if (preg_match('#^/admin/applications/(\d+)/status$#', $path, $m) && $method ===
 
     $allowed = ['pending', 'approved', 'rejected'];
     if (!in_array($new_status, $allowed, true)) {
-        flash_set('app_success', 'Geçersiz durum.');
+        flash_set('app_error', 'Geçersiz durum.');
         redirect('/admin/applications');
     }
 
@@ -119,7 +120,7 @@ if (preg_match('#^/admin/applications/(\d+)/status$#', $path, $m) && $method ===
         $stmt->execute([':s' => $new_status, ':id' => $id]);
         flash_set('app_success', 'Başvuru durumu güncellendi.');
     } catch (PDOException $e) {
-        flash_set('app_success', 'Hata: ' . $e->getMessage());
+        flash_set('app_error', 'Hata: ' . $e->getMessage());
     }
 
     redirect('/admin/applications');
