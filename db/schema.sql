@@ -38,15 +38,16 @@ CREATE TABLE IF NOT EXISTS `vehicle_types` (
 
 -- ── Applications ──────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS `applications` (
-    `id`           INT UNSIGNED                                NOT NULL AUTO_INCREMENT,
-    `name`         VARCHAR(255)                                NOT NULL,
-    `email`        VARCHAR(255)                                NOT NULL,
-    `phone`        VARCHAR(50)                                 NOT NULL,
-    `city`         VARCHAR(100)                                NOT NULL DEFAULT '',
-    `vehicle_type` VARCHAR(100)                                NOT NULL DEFAULT '',
-    `message`      TEXT                                        NOT NULL DEFAULT '',
-    `status`       ENUM('pending','approved','rejected')       NOT NULL DEFAULT 'pending',
-    `created_at`   TIMESTAMP                                   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `id`            INT UNSIGNED                                NOT NULL AUTO_INCREMENT,
+    `name`          VARCHAR(255)                                NOT NULL,
+    `email`         VARCHAR(255)                                NOT NULL,
+    `phone`         VARCHAR(50)                                 NOT NULL,
+    `city`          VARCHAR(100)                                NOT NULL DEFAULT '',
+    `vehicle_type`  VARCHAR(100)                                NOT NULL DEFAULT '',
+    `message`       TEXT                                        NOT NULL DEFAULT '',
+    `referral_code` VARCHAR(32)                                 NOT NULL DEFAULT '',
+    `status`        ENUM('pending','approved','rejected')       NOT NULL DEFAULT 'pending',
+    `created_at`    TIMESTAMP                                   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -65,3 +66,7 @@ INSERT IGNORE INTO `vehicle_types` (`name`) VALUES
 -- Do NOT store a plain-text password here.
 -- Use reset-admin.php to create/reset your admin account:
 --   http://localhost/rider/reset-admin.php?action=create&email=admin@example.com&pass=YourPass
+
+-- ── Migration: add referral_code column to existing databases ─────────────────
+-- Run this if you already have the applications table without referral_code:
+--   ALTER TABLE `applications` ADD COLUMN `referral_code` VARCHAR(32) NOT NULL DEFAULT '' AFTER `message`;

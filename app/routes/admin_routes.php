@@ -54,12 +54,13 @@ if ($path === '/admin/logout' && $method === 'GET') {
     redirect('/admin/login');
 }
 
-// GET /admin/applications
-if ($path === '/admin/applications' && $method === 'GET') {
+// GET /admin/applications/export — CSV export
+if ($path === '/admin/applications/export' && $method === 'GET') {
     require_admin();
 
-    $status = $_GET['status'] ?? '';
-    $search = trim($_GET['search'] ?? '');
+    $status         = $_GET['status'] ?? '';
+    $search         = trim($_GET['search'] ?? '');
+    $vehicle_filter = trim($_GET['vehicle'] ?? '');
 
     try {
         $where  = [];
@@ -77,6 +78,81 @@ if ($path === '/admin/applications' && $method === 'GET') {
             $params[':search3'] = '%' . $search . '%';
         }
 
+        if ($vehicle_filter !== '') {
+            $where[]            = 'vehicle_type LIKE :vehicle';
+            $params[':vehicle'] = '%' . $vehicle_filter . '%';
+        }
+
+        $sql = 'SELECT id, name, email, phone, city, vehicle_type, referral_code, message, status, created_at FROM applications';
+        if ($where) {
+            $sql .= ' WHERE ' . implode(' AND ', $where);
+        }
+        $sql .= ' ORDER BY created_at DESC';
+
+        $stmt = db()->prepare($sql);
+        $stmt->execute($params);
+        $rows = $stmt->fetchAll();
+    } catch (PDOException $e) {
+        $rows = [];
+    }
+
+    $filename = 'rider-basvurular-' . date('Y-m-d') . '.csv';
+    header('Content-Type: text/csv; charset=utf-8');
+    header('Content-Disposition: attachment; filename="' . $filename . '"');
+    header('Pragma: no-cache');
+
+    $out = fopen('php://output', 'w');
+    // UTF-8 BOM for Excel compatibility
+    fputs($out, "\xEF\xBB\xBF");
+    fputcsv($out, ['#', 'Ad Soyad', 'E-posta', 'Telefon', 'Şehir', 'Araç Tipi', 'Davet Kodu', 'Not', 'Durum', 'Tarih']);
+    $statusLabels = ['pending' => 'Bekliyor', 'approved' => 'Onaylandı', 'rejected' => 'Reddedildi'];
+    foreach ($rows as $row) {
+        fputcsv($out, [
+            $row['id'],
+            $row['name'],
+            $row['email'],
+            $row['phone'],
+            $row['city'],
+            $row['vehicle_type'],
+            $row['referral_code'] ?? '',
+            $row['message'],
+            $statusLabels[$row['status']] ?? $row['status'],
+            date('d.m.Y H:i', strtotime($row['created_at'])),
+        ]);
+    }
+    fclose($out);
+    exit;
+}
+
+// GET /admin/applications
+if ($path === '/admin/applications' && $method === 'GET') {
+    require_admin();
+
+    $status       = $_GET['status'] ?? '';
+    $search       = trim($_GET['search'] ?? '');
+    $vehicle_filter = trim($_GET['vehicle'] ?? '');
+
+    try {
+        $where  = [];
+        $params = [];
+
+        if ($status !== '') {
+            $where[]           = 'status = :status';
+            $params[':status'] = $status;
+        }
+
+        if ($search !== '') {
+            $where[]            = '(name LIKE :search1 OR email LIKE :search2 OR city LIKE :search3)';
+            $params[':search1'] = '%' . $search . '%';
+            $params[':search2'] = '%' . $search . '%';
+            $params[':search3'] = '%' . $search . '%';
+        }
+
+        if ($vehicle_filter !== '') {
+            $where[]             = 'vehicle_type LIKE :vehicle';
+            $params[':vehicle']  = '%' . $vehicle_filter . '%';
+        }
+
         $sql = 'SELECT * FROM applications';
         if ($where) {
             $sql .= ' WHERE ' . implode(' AND ', $where);
@@ -86,18 +162,24 @@ if ($path === '/admin/applications' && $method === 'GET') {
         $stmt = db()->prepare($sql);
         $stmt->execute($params);
         $applications = $stmt->fetchAll();
+
+        // Distinct vehicle types for filter dropdown
+        $vehicle_types = db()->query('SELECT DISTINCT vehicle_type FROM applications WHERE vehicle_type != \'\' ORDER BY vehicle_type ASC')->fetchAll(\PDO::FETCH_COLUMN);
     } catch (PDOException $e) {
-        $applications = [];
-        $db_error     = $e->getMessage();
+        $applications  = [];
+        $vehicle_types = [];
+        $db_error      = $e->getMessage();
     }
 
     view('admin/applications', [
-        'applications'  => $applications,
-        'filter_status' => $status,
-        'filter_search' => $search,
-        'db_error'      => $db_error ?? '',
-        'success'       => flash_get('app_success'),
-        'error'         => flash_get('app_error'),
+        'applications'   => $applications,
+        'filter_status'  => $status,
+        'filter_search'  => $search,
+        'filter_vehicle' => $vehicle_filter,
+        'vehicle_types'  => $vehicle_types ?? [],
+        'db_error'       => $db_error ?? '',
+        'success'        => flash_get('app_success'),
+        'error'          => flash_get('app_error'),
     ]);
     exit;
 }

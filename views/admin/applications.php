@@ -10,6 +10,15 @@ ob_start();
 
 <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px">
   <h1 class="h1" style="margin:0">Sürücü Başvuruları</h1>
+  <?php
+  $exportParams = http_build_query([
+      'status'  => $filter_status,
+      'search'  => $filter_search,
+      'vehicle' => $filter_vehicle ?? '',
+  ]);
+  ?>
+  <a href="<?= e(BASE_PATH) ?>/admin/applications/export?<?= $exportParams ?>"
+     class="lang-btn" style="white-space:nowrap">📥 CSV İndir</a>
 </div>
 
 <?php if (!empty($db_error)): ?>
@@ -37,8 +46,19 @@ ob_start();
           <option value="rejected" <?= $filter_status === 'rejected' ? 'selected' : '' ?>>Reddedildi</option>
         </select>
       </div>
+      <div>
+        <label class="label" for="vehicle" style="font-size:.82rem">Araç</label>
+        <select id="vehicle" name="vehicle" style="width:160px">
+          <option value="">Tüm Araçlar</option>
+          <?php foreach (($vehicle_types ?? []) as $vt): ?>
+            <option value="<?= e($vt) ?>" <?= ($filter_vehicle ?? '') === $vt ? 'selected' : '' ?>>
+              <?= e($vt) ?>
+            </option>
+          <?php endforeach; ?>
+        </select>
+      </div>
       <button class="lang-btn" type="submit">Filtrele</button>
-      <?php if ($filter_status !== '' || $filter_search !== ''): ?>
+      <?php if ($filter_status !== '' || $filter_search !== '' || ($filter_vehicle ?? '') !== ''): ?>
         <a href="<?= e(BASE_PATH) ?>/admin/applications" class="lang-btn">Temizle</a>
       <?php endif; ?>
     </form>

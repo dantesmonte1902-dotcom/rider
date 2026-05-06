@@ -9,6 +9,26 @@ if ($path === '/' && $method === 'GET') {
     exit;
 }
 
+// GET /lang/{code} — language switcher (stores preference, redirects back)
+if (preg_match('#^/lang/(tr|en)$#', $path, $lm) && $method === 'GET') {
+    $_SESSION['lang'] = $lm[1];
+    $back = $_SERVER['HTTP_REFERER'] ?? (BASE_PATH . '/');
+    header('Location: ' . $back);
+    exit;
+}
+
+// GET /privacy
+if ($path === '/privacy' && $method === 'GET') {
+    view('public/privacy');
+    exit;
+}
+
+// GET /terms
+if ($path === '/terms' && $method === 'GET') {
+    view('public/terms');
+    exit;
+}
+
 // GET /apply
 if ($path === '/apply' && $method === 'GET') {
     try {
@@ -31,12 +51,20 @@ if ($path === '/apply' && $method === 'GET') {
 if ($path === '/apply' && $method === 'POST') {
     csrf_validate();
 
-    $name         = trim((string)($_POST['name'] ?? ''));
-    $email        = trim((string)($_POST['email'] ?? ''));
-    $phone        = trim((string)($_POST['phone'] ?? ''));
-    $city         = trim((string)($_POST['city'] ?? ''));
-    $vehicle_type = trim((string)($_POST['vehicle_type'] ?? ''));
-    $message      = trim((string)($_POST['message'] ?? ''));
+    // Honeypot check — bots fill hidden fields; humans leave them empty
+    if (($_POST['website'] ?? '') !== '') {
+        // Silently redirect to success without saving anything
+        redirect('/apply/success');
+    }
+
+    $name          = trim((string)($_POST['name'] ?? ''));
+    $email         = trim((string)($_POST['email'] ?? ''));
+    $phone         = trim((string)($_POST['phone'] ?? ''));
+    $city          = trim((string)($_POST['city'] ?? ''));
+    $vehicle_type  = trim((string)($_POST['vehicle_type'] ?? ''));
+    $message       = trim((string)($_POST['message'] ?? ''));
+    $referral_code = trim((string)($_POST['referral_code'] ?? ''));
+    $kvkk          = !empty($_POST['kvkk']);
 
     // Basic validation
     if ($name === '' || $email === '' || $phone === '') {
@@ -49,10 +77,15 @@ if ($path === '/apply' && $method === 'POST') {
         redirect('/apply');
     }
 
+    if (!$kvkk) {
+        flash_set('apply_error', 'Devam etmek için gizlilik politikasını kabul etmeniz gerekmektedir.');
+        redirect('/apply');
+    }
+
     try {
         $stmt = db()->prepare(
-            'INSERT INTO applications (name, email, phone, city, vehicle_type, message)
-             VALUES (:name, :email, :phone, :city, :vtype, :msg)'
+            'INSERT INTO applications (name, email, phone, city, vehicle_type, message, referral_code)
+             VALUES (:name, :email, :phone, :city, :vtype, :msg, :ref)'
         );
         $stmt->execute([
             ':name'  => $name,
@@ -61,6 +94,7 @@ if ($path === '/apply' && $method === 'POST') {
             ':city'  => $city,
             ':vtype' => $vehicle_type,
             ':msg'   => $message,
+            ':ref'   => $referral_code,
         ]);
     } catch (PDOException $e) {
         flash_set('apply_error', 'Başvurunuz kaydedilemedi. Lütfen tekrar deneyin.');
