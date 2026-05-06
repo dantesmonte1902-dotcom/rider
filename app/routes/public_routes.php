@@ -31,9 +31,19 @@ if ($path === '/terms' && $method === 'GET') {
 
 // GET /apply
 if ($path === '/apply' && $method === 'GET') {
+    $lang      = $_SESSION['lang'] ?? 'bs';
+    $valid_langs = ['bs', 'en', 'tr', 'ar'];
+    if (!in_array($lang, $valid_langs, true)) {
+        $lang = 'bs';
+    }
+    // For BS use name directly; for other languages use COALESCE(name_xx, name) as fallback
+    $lang_col = $lang === 'bs'
+        ? 'name AS label'
+        : "COALESCE(name_{$lang}, name) AS label";
+
     try {
-        $cities       = db()->query('SELECT id, name FROM cities ORDER BY name ASC')->fetchAll();
-        $vehicle_types = db()->query('SELECT id, name FROM vehicle_types ORDER BY name ASC')->fetchAll();
+        $cities        = db()->query("SELECT id, name, {$lang_col} FROM cities ORDER BY label ASC")->fetchAll();
+        $vehicle_types = db()->query("SELECT id, name, {$lang_col} FROM vehicle_types ORDER BY label ASC")->fetchAll();
     } catch (PDOException $e) {
         $cities       = [];
         $vehicle_types = [];

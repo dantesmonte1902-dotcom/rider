@@ -16,9 +16,24 @@ ob_start();
           style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;">
       <?= csrf_field() ?>
       <div>
-        <label class="label" for="city_name" style="font-size:.82rem">Yeni Şehir Ekle</label>
+        <label class="label" for="city_name" style="font-size:.82rem">Boşnakça (BS) <span style="color:red">*</span></label>
         <input class="input" type="text" id="city_name" name="name"
-               placeholder="Şehir adı" required style="width:240px">
+               placeholder="Sarajevo" required style="width:160px">
+      </div>
+      <div>
+        <label class="label" for="city_name_en" style="font-size:.82rem">İngilizce (EN)</label>
+        <input class="input" type="text" id="city_name_en" name="name_en"
+               placeholder="Sarajevo" style="width:160px">
+      </div>
+      <div>
+        <label class="label" for="city_name_tr" style="font-size:.82rem">Türkçe (TR)</label>
+        <input class="input" type="text" id="city_name_tr" name="name_tr"
+               placeholder="Saraybosna" style="width:160px">
+      </div>
+      <div>
+        <label class="label" for="city_name_ar" style="font-size:.82rem">Arapça (AR)</label>
+        <input class="input" type="text" id="city_name_ar" name="name_ar"
+               placeholder="سراييفو" style="width:160px">
       </div>
       <button class="btn" type="submit" style="background:var(--green);color:#fff;width:auto;padding:0 20px">
         + Ekle
@@ -37,7 +52,10 @@ ob_start();
       <thead>
         <tr>
           <th>#</th>
-          <th>Şehir Adı</th>
+          <th>BS (Boşnakça)</th>
+          <th>EN (İngilizce)</th>
+          <th>TR (Türkçe)</th>
+          <th>AR (Arapça)</th>
           <th style="width:80px">Sil</th>
         </tr>
       </thead>
@@ -46,6 +64,9 @@ ob_start();
         <tr>
           <td><?= (int)$city['id'] ?></td>
           <td><?= e($city['name']) ?></td>
+          <td><?= $city['name_en'] !== null ? e($city['name_en']) : '<span style="opacity:.45">—</span>' ?></td>
+          <td><?= $city['name_tr'] !== null ? e($city['name_tr']) : '<span style="opacity:.45">—</span>' ?></td>
+          <td><?= $city['name_ar'] !== null ? e($city['name_ar']) : '<span style="opacity:.45">—</span>' ?></td>
           <td>
             <form method="POST"
                   action="<?= e(BASE_PATH) ?>/admin/cities/<?= (int)$city['id'] ?>/delete"

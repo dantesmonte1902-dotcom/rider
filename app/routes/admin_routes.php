@@ -220,7 +220,7 @@ if (($path === '/admin' || $path === '') && $method === 'GET') {
 if ($path === '/admin/cities' && $method === 'GET') {
     require_admin();
     try {
-        $cities = db()->query('SELECT id, name FROM cities ORDER BY name ASC')->fetchAll();
+        $cities = db()->query('SELECT id, name, name_en, name_tr, name_ar FROM cities ORDER BY name ASC')->fetchAll();
     } catch (PDOException $e) {
         $cities   = [];
         $db_error = $e->getMessage();
@@ -238,14 +238,24 @@ if ($path === '/admin/cities' && $method === 'GET') {
 if ($path === '/admin/cities' && $method === 'POST') {
     require_admin();
     csrf_validate();
-    $name = trim((string)($_POST['name'] ?? ''));
+    $name    = trim((string)($_POST['name']    ?? ''));
+    $name_en = trim((string)($_POST['name_en'] ?? ''));
+    $name_tr = trim((string)($_POST['name_tr'] ?? ''));
+    $name_ar = trim((string)($_POST['name_ar'] ?? ''));
     if ($name === '') {
-        flash_set('city_error', 'Şehir adı boş bırakılamaz.');
+        flash_set('city_error', 'Boşnakça şehir adı boş bırakılamaz.');
         redirect('/admin/cities');
     }
     try {
-        $stmt = db()->prepare('INSERT INTO cities (name) VALUES (:name)');
-        $stmt->execute([':name' => $name]);
+        $stmt = db()->prepare(
+            'INSERT INTO cities (name, name_en, name_tr, name_ar) VALUES (:name, :en, :tr, :ar)'
+        );
+        $stmt->execute([
+            ':name' => $name,
+            ':en'   => $name_en !== '' ? $name_en : null,
+            ':tr'   => $name_tr !== '' ? $name_tr : null,
+            ':ar'   => $name_ar !== '' ? $name_ar : null,
+        ]);
         flash_set('city_success', '"' . $name . '" eklendi.');
     } catch (PDOException $e) {
         flash_set('city_error', 'Hata: ' . $e->getMessage());
@@ -274,7 +284,7 @@ if (preg_match('#^/admin/cities/(\d+)/delete$#', $path, $m) && $method === 'POST
 if ($path === '/admin/vehicles' && $method === 'GET') {
     require_admin();
     try {
-        $vehicle_types = db()->query('SELECT id, name FROM vehicle_types ORDER BY name ASC')->fetchAll();
+        $vehicle_types = db()->query('SELECT id, name, name_en, name_tr, name_ar FROM vehicle_types ORDER BY name ASC')->fetchAll();
     } catch (PDOException $e) {
         $vehicle_types = [];
         $db_error      = $e->getMessage();
@@ -292,14 +302,24 @@ if ($path === '/admin/vehicles' && $method === 'GET') {
 if ($path === '/admin/vehicles' && $method === 'POST') {
     require_admin();
     csrf_validate();
-    $name = trim((string)($_POST['name'] ?? ''));
+    $name    = trim((string)($_POST['name']    ?? ''));
+    $name_en = trim((string)($_POST['name_en'] ?? ''));
+    $name_tr = trim((string)($_POST['name_tr'] ?? ''));
+    $name_ar = trim((string)($_POST['name_ar'] ?? ''));
     if ($name === '') {
-        flash_set('vehicle_error', 'Araç tipi adı boş bırakılamaz.');
+        flash_set('vehicle_error', 'Boşnakça araç tipi adı boş bırakılamaz.');
         redirect('/admin/vehicles');
     }
     try {
-        $stmt = db()->prepare('INSERT INTO vehicle_types (name) VALUES (:name)');
-        $stmt->execute([':name' => $name]);
+        $stmt = db()->prepare(
+            'INSERT INTO vehicle_types (name, name_en, name_tr, name_ar) VALUES (:name, :en, :tr, :ar)'
+        );
+        $stmt->execute([
+            ':name' => $name,
+            ':en'   => $name_en !== '' ? $name_en : null,
+            ':tr'   => $name_tr !== '' ? $name_tr : null,
+            ':ar'   => $name_ar !== '' ? $name_ar : null,
+        ]);
         flash_set('vehicle_success', '"' . $name . '" eklendi.');
     } catch (PDOException $e) {
         flash_set('vehicle_error', 'Hata: ' . $e->getMessage());

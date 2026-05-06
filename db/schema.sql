@@ -40,16 +40,22 @@ CREATE TABLE IF NOT EXISTS `admin_users` (
 
 -- ── Cities ────────────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS `cities` (
-    `id`   INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    `name` VARCHAR(100) NOT NULL,
+    `id`      INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `name`    VARCHAR(100) NOT NULL,           -- Bosnian (canonical / fallback)
+    `name_en` VARCHAR(100) DEFAULT NULL,       -- English
+    `name_tr` VARCHAR(100) DEFAULT NULL,       -- Turkish
+    `name_ar` VARCHAR(100) DEFAULT NULL,       -- Arabic
     PRIMARY KEY (`id`),
     UNIQUE KEY `uq_city_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ── Vehicle types ─────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS `vehicle_types` (
-    `id`   INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    `name` VARCHAR(100) NOT NULL,
+    `id`      INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `name`    VARCHAR(100) NOT NULL,           -- Bosnian (canonical / fallback)
+    `name_en` VARCHAR(100) DEFAULT NULL,       -- English
+    `name_tr` VARCHAR(100) DEFAULT NULL,       -- Turkish
+    `name_ar` VARCHAR(100) DEFAULT NULL,       -- Arabic
     PRIMARY KEY (`id`),
     UNIQUE KEY `uq_vtype_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -72,13 +78,25 @@ CREATE TABLE IF NOT EXISTS `applications` (
 SET foreign_key_checks = 1;
 
 -- ── Seed: Bosna-Hersek şehirleri (Sarajevo öncelikli) ────────────────────────
-INSERT IGNORE INTO `cities` (`name`) VALUES
-    ('Sarajevo'), ('Banja Luka'), ('Tuzla'), ('Zenica'), ('Mostar'),
-    ('Bijeljina'), ('Brčko'), ('Prijedor'), ('Trebinje'), ('Doboj');
+INSERT IGNORE INTO `cities` (`name`, `name_en`, `name_tr`, `name_ar`) VALUES
+    ('Sarajevo',  'Sarajevo',   'Saraybosna',  'سراييفو'),
+    ('Banja Luka','Banja Luka', 'Banya Luka',  'بانيا لوكا'),
+    ('Tuzla',     'Tuzla',      'Tuzla',       'توزلا'),
+    ('Zenica',    'Zenica',     'Zenitsa',     'زنيتسا'),
+    ('Mostar',    'Mostar',     'Mostar',      'موستار'),
+    ('Bijeljina', 'Bijeljina',  'Biyelyina',   'بييليينا'),
+    ('Brčko',     'Brčko',      'Brçko',       'برتشكو'),
+    ('Prijedor',  'Prijedor',   'Priydor',     'بريدور'),
+    ('Trebinje',  'Trebinje',   'Trebinye',    'تربينيه'),
+    ('Doboj',     'Doboj',      'Doboy',       'دوبوي');
 
 -- ── Seed: araç tipleri ────────────────────────────────────────────────────────
-INSERT IGNORE INTO `vehicle_types` (`name`) VALUES
-    ('Motocikl'), ('Bicikl'), ('Električni skuter'), ('Automobil'), ('Kombi');
+INSERT IGNORE INTO `vehicle_types` (`name`, `name_en`, `name_tr`, `name_ar`) VALUES
+    ('Motocikl',          'Motorcycle',     'Motosiklet',       'دراجة نارية'),
+    ('Bicikl',            'Bicycle',        'Bisiklet',         'دراجة هوائية'),
+    ('Električni skuter', 'Electric scooter','Elektrikli scooter','سكوتر كهربائي'),
+    ('Automobil',         'Car',            'Otomobil',         'سيارة'),
+    ('Kombi',             'Van',            'Minibüs',          'شاحنة صغيرة');
 
 -- ── Admin kullanıcısı ─────────────────────────────────────────────────────────
 -- Şifre buraya YAZILMAMALIDİR.
@@ -92,4 +110,14 @@ INSERT IGNORE INTO `vehicle_types` (`name`) VALUES
 -- Daha önce bu şemayı çalıştırdıysanız ve referral_code kolonu eksikse:
 --   ALTER TABLE `applications`
 --       ADD COLUMN `referral_code` VARCHAR(32) NOT NULL DEFAULT '' AFTER `message`;
+--
+-- Daha önce bu şemayı çalıştırdıysanız ve çok dilli ad kolonları eksikse:
+--   ALTER TABLE `cities`
+--       ADD COLUMN `name_en` VARCHAR(100) DEFAULT NULL AFTER `name`,
+--       ADD COLUMN `name_tr` VARCHAR(100) DEFAULT NULL AFTER `name_en`,
+--       ADD COLUMN `name_ar` VARCHAR(100) DEFAULT NULL AFTER `name_tr`;
+--   ALTER TABLE `vehicle_types`
+--       ADD COLUMN `name_en` VARCHAR(100) DEFAULT NULL AFTER `name`,
+--       ADD COLUMN `name_tr` VARCHAR(100) DEFAULT NULL AFTER `name_en`,
+--       ADD COLUMN `name_ar` VARCHAR(100) DEFAULT NULL AFTER `name_tr`;
 -- ══════════════════════════════════════════════════════════════════════════════

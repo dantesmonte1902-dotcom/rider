@@ -93,7 +93,7 @@ $_htmlDir = t('html.dir') === 'rtl' ? ' dir="rtl"' : '';
                       <?php foreach ($cities as $c): ?>
                         <option value="<?= e($c['name']) ?>"
                           <?= ($_POST['city'] ?? '') === $c['name'] ? 'selected' : '' ?>>
-                          <?= e($c['name']) ?>
+                          <?= e($c['label']) ?>
                         </option>
                       <?php endforeach; ?>
                     </select>
@@ -112,7 +112,7 @@ $_htmlDir = t('html.dir') === 'rtl' ? ' dir="rtl"' : '';
                       <?php foreach ($vehicle_types as $v): ?>
                         <option value="<?= e($v['name']) ?>"
                           <?= ($_POST['vehicle_type'] ?? '') === $v['name'] ? 'selected' : '' ?>>
-                          <?= e($v['name']) ?>
+                          <?= e($v['label']) ?>
                         </option>
                       <?php endforeach; ?>
                     </select>
