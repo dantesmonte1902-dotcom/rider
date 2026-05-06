@@ -6,8 +6,7 @@ declare(strict_types=1);
 // GET /admin/login
 if ($path === '/admin/login' && $method === 'GET') {
     view('admin/login', [
-        'error'    => flash_get('admin_login_failed'),
-        'success'  => flash_get('admin_login_success'),
+        'error' => flash_get('admin_login_failed'),
     ]);
     exit;
 }
@@ -20,8 +19,8 @@ if ($path === '/admin/login' && $method === 'POST') {
     $pass  = (string)($_POST['password'] ?? '');
 
     if ($email === '' || $pass === '') {
-        flash_set('admin_login_failed', 'E-posta ve şifre boş bırakılamaz.');
-        redirect('/admin/login');
+        view('admin/login', ['error' => 'E-posta ve şifre boş bırakılamaz.']);
+        exit;
     }
 
     try {
@@ -29,14 +28,14 @@ if ($path === '/admin/login' && $method === 'POST') {
         $stmt->execute([':email' => $email]);
         $user = $stmt->fetch();
     } catch (PDOException $e) {
-        flash_set('admin_login_failed', 'Veritabanı hatası: ' . $e->getMessage());
-        redirect('/admin/login');
+        view('admin/login', ['error' => 'Veritabanı hatası: ' . $e->getMessage()]);
+        exit;
     }
 
     if (!$user || !password_verify($pass, $user['password_hash'])) {
         // Intentionally vague message to prevent user enumeration
-        flash_set('admin_login_failed', 'Geçersiz e-posta veya şifre.');
-        redirect('/admin/login');
+        view('admin/login', ['error' => 'Geçersiz e-posta veya şifre.']);
+        exit;
     }
 
     // Regenerate session ID to prevent fixation attacks
@@ -72,8 +71,10 @@ if ($path === '/admin/applications' && $method === 'GET') {
         }
 
         if ($search !== '') {
-            $where[]           = '(name LIKE :search OR email LIKE :search OR city LIKE :search)';
-            $params[':search'] = '%' . $search . '%';
+            $where[]            = '(name LIKE :search1 OR email LIKE :search2 OR city LIKE :search3)';
+            $params[':search1'] = '%' . $search . '%';
+            $params[':search2'] = '%' . $search . '%';
+            $params[':search3'] = '%' . $search . '%';
         }
 
         $sql = 'SELECT * FROM applications';
