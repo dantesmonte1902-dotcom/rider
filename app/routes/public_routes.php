@@ -53,8 +53,8 @@ if ($path === '/apply' && $method === 'POST') {
 
     // Honeypot check — bots fill hidden fields; humans leave them empty
     if (($_POST['website'] ?? '') !== '') {
-        // Silently redirect to success without saving anything
-        redirect('/apply/success');
+        // Silently discard bot submission and redirect away without confirming success
+        redirect('/');
     }
 
     $name          = trim((string)($_POST['name'] ?? ''));
