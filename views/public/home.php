@@ -1,53 +1,54 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ana Sayfa – Rider</title>
-    <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%);
-            color: #fff;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-        }
-        .hero { padding: 2rem; }
-        .hero h1 { font-size: 3rem; margin-bottom: 1rem; }
-        .hero p  { font-size: 1.1rem; color: #c8d6e5; margin-bottom: 2rem; max-width: 480px; }
-        .hero a {
-            display: inline-block;
-            padding: .85rem 2rem;
-            background: #fff;
-            color: #1a1a2e;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 1rem;
-            transition: opacity .15s;
-            margin: .4rem;
-        }
-        .hero a:hover { opacity: .9; }
-        .hero a.outline {
-            background: transparent;
-            color: #fff;
-            border: 2px solid rgba(255,255,255,.5);
-        }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kurye Ol | Rider</title>
+  <link rel="stylesheet" href="<?= e(BASE_PATH) ?>/assets/app.css">
 </head>
 <body>
+<header class="topbar">
+  <div class="container topbar-inner">
+    <div class="brand">
+      <div class="brand-badge">R</div>
+      <div class="brand-text">Rider</div>
+    </div>
+    <a class="lang-btn" href="<?= e(BASE_PATH) ?>/apply">Başvur</a>
+  </div>
+</header>
 
-<div class="hero">
-    <div style="font-size:4rem;margin-bottom:1rem;">🏍</div>
-    <h1>Rider</h1>
-    <p>Hızlı, güvenli ve konforlu ulaşım. Sürücü olmak için başvurun.</p>
-    <a href="<?= e(BASE_PATH) ?>/apply">Sürücü Başvurusu</a>
-    <a href="<?= e(BASE_PATH) ?>/admin/login" class="outline">Admin Girişi</a>
-</div>
+<main>
+  <section class="hero">
+    <div class="container">
+      <div class="grid">
+        <div class="card">
+          <div class="card-pad">
+            <h1 class="h1">Kurye olun</h1>
+            <p class="p">Esnek çalışma, haftalık kazanç ve kendi kurallarınla çalışma özgürlüğü.</p>
+            <div style="height:18px"></div>
+            <a class="lang-btn" href="<?= e(BASE_PATH) ?>/apply">Hemen başvur</a>
+          </div>
+        </div>
 
+        <div class="card apply-card">
+          <div class="card-pad">
+            <h2>Profil oluştur</h2>
+            <p style="margin:0 0 18px;opacity:.95">Kısa formu doldurun, ekibimiz sizinle iletişime geçsin.</p>
+            <a href="<?= e(BASE_PATH) ?>/apply" class="btn">Hemen başvur</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="container footer-inner">
+    <div>Yardım: <a href="#" class="footer-link">Kurye web sitesi</a></div>
+    <div class="muted">&copy; <?= date('Y') ?></div>
+  </div>
+</footer>
+
+<script src="<?= e(BASE_PATH) ?>/assets/app.js"></script>
 </body>
 </html>
