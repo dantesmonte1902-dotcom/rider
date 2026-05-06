@@ -1,0 +1,16 @@
+# Rider - Apache Rewrite Rules
+# All requests are routed through index.php except real files/dirs.
+# Place this file at: <DocumentRoot>/rider/.htaccess
+# (e.g. C:\xampp\htdocs\rider\.htaccess)
+
+Options -Indexes
+
+RewriteEngine On
+RewriteBase /rider/
+
+# Serve existing files and directories directly (assets, etc.)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Route everything else through the front controller
+RewriteRule ^ index.php [L]
