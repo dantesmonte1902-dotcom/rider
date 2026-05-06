@@ -1,10 +1,14 @@
+<?php
+$_lang    = $_SESSION['lang'] ?? 'bs';
+$_htmlDir = t('html.dir') === 'rtl' ? ' dir="rtl"' : '';
+?>
 <!doctype html>
-<html lang="tr">
+<html lang="<?= e(t('html.lang')) ?>"<?= $_htmlDir ?>>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Başvuru Alındı – Rider</title>
-  <meta name="description" content="Rider kurye başvurunuz alındı. Ekibimiz en kısa sürede sizinle iletişime geçecektir.">
+  <title><?= e(t('success.meta_title')) ?></title>
+  <meta name="description" content="<?= e(t('success.meta_desc')) ?>">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23FFCD1A'/><text x='16' y='23' text-anchor='middle' font-size='18' font-weight='900' fill='%23188669' font-family='system-ui,sans-serif'>R</text></svg>">
   <link rel="stylesheet" href="<?= e(BASE_PATH) ?>/assets/app.css">
 </head>
@@ -27,11 +31,11 @@
       <div class="card" style="max-width:580px;margin:0 auto">
         <div class="card-pad" style="text-align:center">
           <div style="font-size:56px;margin-bottom:12px">🎉</div>
-          <h1 class="h1">Teşekkürler! Başvurunuz alındı.</h1>
-          <p class="p">Ekibimiz en kısa sürede — genellikle <strong>24–48 saat</strong> içinde — sizinle iletişime geçecektir.</p>
+          <h1 class="h1"><?= e(t('success.h1')) ?></h1>
+          <p class="p"><?= t('success.p') ?></p>
           <div style="height:18px"></div>
           <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
-            <a class="lang-btn" href="<?= e(BASE_PATH) ?>/">Ana Sayfaya Dön</a>
+            <a class="lang-btn" href="<?= e(BASE_PATH) ?>/"><?= e(t('success.back_btn')) ?></a>
           </div>
         </div>
       </div>
@@ -42,10 +46,10 @@
 <footer class="footer">
   <div class="container">
     <div class="footer-bottom" style="border-top:none;padding-top:28px;padding-bottom:28px">
-      <div>© <?= date('Y') ?> Rider Teknoloji A.Ş.</div>
+      <div><?= e(sprintf(t('footer.copyright'), (int) date('Y'))) ?></div>
       <div style="display:flex;gap:14px">
-        <a href="<?= e(BASE_PATH) ?>/privacy">Gizlilik Politikası</a>
-        <a href="<?= e(BASE_PATH) ?>/terms">Kullanım Koşulları</a>
+        <a href="<?= e(BASE_PATH) ?>/privacy"><?= e(t('footer.privacy')) ?></a>
+        <a href="<?= e(BASE_PATH) ?>/terms"><?= e(t('footer.terms')) ?></a>
       </div>
     </div>
   </div>

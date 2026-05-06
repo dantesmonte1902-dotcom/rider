@@ -110,3 +110,25 @@ function e(mixed $value): string
 {
     return htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
+
+// ── Translations ──────────────────────────────────────────────────────────────
+
+/**
+ * Return the translation string for the given key.
+ * Falls back to the key itself if not found.
+ * Supported languages: bs (Bosnian), en (English), tr (Turkish), ar (Arabic).
+ */
+function t(string $key): string
+{
+    static $strings = null;
+    if ($strings === null) {
+        $lang = $_SESSION['lang'] ?? 'bs';
+        $valid = ['bs', 'en', 'tr', 'ar'];
+        if (!in_array($lang, $valid, true)) {
+            $lang = 'bs';
+        }
+        $file = __DIR__ . '/lang/' . $lang . '.php';
+        $strings = file_exists($file) ? require $file : [];
+    }
+    return (string) ($strings[$key] ?? $key);
+}

@@ -68,17 +68,17 @@ if ($path === '/apply' && $method === 'POST') {
 
     // Basic validation
     if ($name === '' || $email === '' || $phone === '') {
-        flash_set('apply_error', 'Ad, e-posta ve telefon alanları zorunludur.');
+        flash_set('apply_error', 'error.required_fields');
         redirect('/apply');
     }
 
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        flash_set('apply_error', 'Geçerli bir e-posta adresi girin.');
+        flash_set('apply_error', 'error.invalid_email');
         redirect('/apply');
     }
 
     if (!$kvkk) {
-        flash_set('apply_error', 'Devam etmek için gizlilik politikasını kabul etmeniz gerekmektedir.');
+        flash_set('apply_error', 'error.kvkk_required');
         redirect('/apply');
     }
 
@@ -97,7 +97,7 @@ if ($path === '/apply' && $method === 'POST') {
             ':ref'   => $referral_code,
         ]);
     } catch (PDOException $e) {
-        flash_set('apply_error', 'Başvurunuz kaydedilemedi. Lütfen tekrar deneyin.');
+        flash_set('apply_error', 'error.save_failed');
         redirect('/apply');
     }
 

@@ -1,5 +1,8 @@
+<?php
+$_htmlDir = t('html.dir') === 'rtl' ? ' dir="rtl"' : '';
+?>
 <!doctype html>
-<html lang="tr">
+<html lang="<?= e(t('html.lang')) ?>"<?= $_htmlDir ?>>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -24,7 +27,7 @@
       </svg>
       <div class="brand-text">Rider</div>
     </div>
-    <a class="lang-btn" href="<?= e(BASE_PATH) ?>/">Ana Sayfa</a>
+    <a class="lang-btn" href="<?= e(BASE_PATH) ?>/"><?= e(t('nav.home')) ?></a>
   </div>
 </header>
 
@@ -85,7 +88,7 @@
           <strong>Adres:</strong> Rider Teknoloji A.Ş., İstanbul, Türkiye</p>
 
           <div style="height:18px"></div>
-          <a class="lang-btn" href="<?= e(BASE_PATH) ?>/">← Ana Sayfaya Dön</a>
+          <a class="lang-btn" href="<?= e(BASE_PATH) ?>/"><?= e(t('privacy.back_home')) ?></a>
         </div>
       </div>
     </div>
@@ -95,10 +98,10 @@
 <footer class="footer">
   <div class="container">
     <div class="footer-bottom" style="border-top:none;padding-top:28px;padding-bottom:28px">
-      <div>© <?= date('Y') ?> Rider Teknoloji A.Ş.</div>
+      <div><?= e(sprintf(t('footer.copyright'), (int) date('Y'))) ?></div>
       <div style="display:flex;gap:14px">
-        <a href="<?= e(BASE_PATH) ?>/privacy">Gizlilik Politikası</a>
-        <a href="<?= e(BASE_PATH) ?>/terms">Kullanım Koşulları</a>
+        <a href="<?= e(BASE_PATH) ?>/privacy"><?= e(t('footer.privacy')) ?></a>
+        <a href="<?= e(BASE_PATH) ?>/terms"><?= e(t('footer.terms')) ?></a>
       </div>
     </div>
   </div>
