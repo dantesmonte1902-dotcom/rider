@@ -71,14 +71,14 @@ CREATE TABLE IF NOT EXISTS `applications` (
 
 SET foreign_key_checks = 1;
 
--- ── Seed: örnek şehirler ──────────────────────────────────────────────────────
+-- ── Seed: Bosna-Hersek şehirleri (Sarajevo öncelikli) ────────────────────────
 INSERT IGNORE INTO `cities` (`name`) VALUES
-    ('İstanbul'), ('Ankara'), ('İzmir'), ('Bursa'), ('Antalya'),
-    ('Adana'), ('Konya'), ('Gaziantep'), ('Mersin'), ('Kayseri');
+    ('Sarajevo'), ('Banja Luka'), ('Tuzla'), ('Zenica'), ('Mostar'),
+    ('Bijeljina'), ('Brčko'), ('Prijedor'), ('Trebinje'), ('Doboj');
 
 -- ── Seed: araç tipleri ────────────────────────────────────────────────────────
 INSERT IGNORE INTO `vehicle_types` (`name`) VALUES
-    ('Motosiklet'), ('Bisiklet'), ('Elektrikli Scooter'), ('Otomobil'), ('Minibüs');
+    ('Motocikl'), ('Bicikl'), ('Električni skuter'), ('Automobil'), ('Kombi');
 
 -- ── Admin kullanıcısı ─────────────────────────────────────────────────────────
 -- Şifre buraya YAZILMAMALIDİR.

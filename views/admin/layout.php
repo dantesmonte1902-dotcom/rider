@@ -17,6 +17,10 @@
     <div class="lang">
       <a class="lang-btn <?= ($activePage ?? '') === 'applications' ? 'active' : '' ?>"
          href="<?= e(BASE_PATH) ?>/admin/applications">Başvurular</a>
+      <a class="lang-btn <?= ($activePage ?? '') === 'cities' ? 'active' : '' ?>"
+         href="<?= e(BASE_PATH) ?>/admin/cities">Şehirler</a>
+      <a class="lang-btn <?= ($activePage ?? '') === 'vehicles' ? 'active' : '' ?>"
+         href="<?= e(BASE_PATH) ?>/admin/vehicles">Araçlar</a>
       <a class="lang-btn" href="<?= e(BASE_PATH) ?>/admin/logout">Çıkış</a>
     </div>
   </div>

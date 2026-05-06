@@ -213,3 +213,111 @@ if (preg_match('#^/admin/applications/(\d+)/status$#', $path, $m) && $method ===
 if (($path === '/admin' || $path === '') && $method === 'GET') {
     redirect('/admin/applications');
 }
+
+// ── Cities ────────────────────────────────────────────────────────────────────
+
+// GET /admin/cities
+if ($path === '/admin/cities' && $method === 'GET') {
+    require_admin();
+    try {
+        $cities = db()->query('SELECT id, name FROM cities ORDER BY name ASC')->fetchAll();
+    } catch (PDOException $e) {
+        $cities   = [];
+        $db_error = $e->getMessage();
+    }
+    view('admin/cities', [
+        'cities'   => $cities,
+        'db_error' => $db_error ?? '',
+        'success'  => flash_get('city_success'),
+        'error'    => flash_get('city_error'),
+    ]);
+    exit;
+}
+
+// POST /admin/cities — add city
+if ($path === '/admin/cities' && $method === 'POST') {
+    require_admin();
+    csrf_validate();
+    $name = trim((string)($_POST['name'] ?? ''));
+    if ($name === '') {
+        flash_set('city_error', 'Şehir adı boş bırakılamaz.');
+        redirect('/admin/cities');
+    }
+    try {
+        $stmt = db()->prepare('INSERT INTO cities (name) VALUES (:name)');
+        $stmt->execute([':name' => $name]);
+        flash_set('city_success', '"' . $name . '" eklendi.');
+    } catch (PDOException $e) {
+        flash_set('city_error', 'Hata: ' . $e->getMessage());
+    }
+    redirect('/admin/cities');
+}
+
+// POST /admin/cities/{id}/delete — delete city
+if (preg_match('#^/admin/cities/(\d+)/delete$#', $path, $m) && $method === 'POST') {
+    require_admin();
+    csrf_validate();
+    $id = (int)$m[1];
+    try {
+        $stmt = db()->prepare('DELETE FROM cities WHERE id = :id');
+        $stmt->execute([':id' => $id]);
+        flash_set('city_success', 'Şehir silindi.');
+    } catch (PDOException $e) {
+        flash_set('city_error', 'Hata: ' . $e->getMessage());
+    }
+    redirect('/admin/cities');
+}
+
+// ── Vehicle types ─────────────────────────────────────────────────────────────
+
+// GET /admin/vehicles
+if ($path === '/admin/vehicles' && $method === 'GET') {
+    require_admin();
+    try {
+        $vehicle_types = db()->query('SELECT id, name FROM vehicle_types ORDER BY name ASC')->fetchAll();
+    } catch (PDOException $e) {
+        $vehicle_types = [];
+        $db_error      = $e->getMessage();
+    }
+    view('admin/vehicles', [
+        'vehicle_types' => $vehicle_types,
+        'db_error'      => $db_error ?? '',
+        'success'       => flash_get('vehicle_success'),
+        'error'         => flash_get('vehicle_error'),
+    ]);
+    exit;
+}
+
+// POST /admin/vehicles — add vehicle type
+if ($path === '/admin/vehicles' && $method === 'POST') {
+    require_admin();
+    csrf_validate();
+    $name = trim((string)($_POST['name'] ?? ''));
+    if ($name === '') {
+        flash_set('vehicle_error', 'Araç tipi adı boş bırakılamaz.');
+        redirect('/admin/vehicles');
+    }
+    try {
+        $stmt = db()->prepare('INSERT INTO vehicle_types (name) VALUES (:name)');
+        $stmt->execute([':name' => $name]);
+        flash_set('vehicle_success', '"' . $name . '" eklendi.');
+    } catch (PDOException $e) {
+        flash_set('vehicle_error', 'Hata: ' . $e->getMessage());
+    }
+    redirect('/admin/vehicles');
+}
+
+// POST /admin/vehicles/{id}/delete — delete vehicle type
+if (preg_match('#^/admin/vehicles/(\d+)/delete$#', $path, $m) && $method === 'POST') {
+    require_admin();
+    csrf_validate();
+    $id = (int)$m[1];
+    try {
+        $stmt = db()->prepare('DELETE FROM vehicle_types WHERE id = :id');
+        $stmt->execute([':id' => $id]);
+        flash_set('vehicle_success', 'Araç tipi silindi.');
+    } catch (PDOException $e) {
+        flash_set('vehicle_error', 'Hata: ' . $e->getMessage());
+    }
+    redirect('/admin/vehicles');
+}
