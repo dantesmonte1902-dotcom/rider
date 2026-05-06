@@ -10,7 +10,7 @@ if ($path === '/' && $method === 'GET') {
 }
 
 // GET /lang/{code} — language switcher (stores preference, redirects back)
-if (preg_match('#^/lang/(tr|en)$#', $path, $lm) && $method === 'GET') {
+if (preg_match('#^/lang/(bs|en|tr|ar)$#', $path, $lm) && $method === 'GET') {
     $_SESSION['lang'] = $lm[1];
     $back = $_SERVER['HTTP_REFERER'] ?? (BASE_PATH . '/');
     header('Location: ' . $back);

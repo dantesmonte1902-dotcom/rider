@@ -22,9 +22,12 @@
       <div class="brand-text">Rider</div>
     </div>
     <div style="display:flex;align-items:center;gap:12px">
+      <?php $activeLang = $_SESSION['lang'] ?? 'bs'; ?>
       <div class="lang-switch">
-        <a href="<?= e(BASE_PATH) ?>/lang/tr" class="active">TR</a>
-        <a href="<?= e(BASE_PATH) ?>/lang/en">EN</a>
+        <a href="<?= e(BASE_PATH) ?>/lang/bs"<?= $activeLang === 'bs' ? ' class="active"' : '' ?>>BS</a>
+        <a href="<?= e(BASE_PATH) ?>/lang/en"<?= $activeLang === 'en' ? ' class="active"' : '' ?>>EN</a>
+        <a href="<?= e(BASE_PATH) ?>/lang/tr"<?= $activeLang === 'tr' ? ' class="active"' : '' ?>>TR</a>
+        <a href="<?= e(BASE_PATH) ?>/lang/ar"<?= $activeLang === 'ar' ? ' class="active"' : '' ?>>AR</a>
       </div>
       <a class="lang-btn" href="<?= e(BASE_PATH) ?>/apply">Başvur</a>
     </div>
