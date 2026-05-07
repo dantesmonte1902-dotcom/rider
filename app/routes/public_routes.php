@@ -29,14 +29,19 @@ if ($path === '/terms' && $method === 'GET') {
     exit;
 }
 
-// GET /apply
-if ($path === '/apply' && $method === 'GET') {
-    $lang      = $_SESSION['lang'] ?? 'bs';
+/**
+ * Fetch cities and vehicle_types with localised labels.
+ * Falls back to the canonical name column for legacy schemas.
+ *
+ * @return array{cities: list<array<string,mixed>>, vehicle_types: list<array<string,mixed>>}
+ */
+function _apply_fetch_options(): array
+{
+    $lang        = $_SESSION['lang'] ?? 'bs';
     $valid_langs = ['bs', 'en', 'tr', 'ar'];
     if (!in_array($lang, $valid_langs, true)) {
         $lang = 'bs';
     }
-    // For BS use name directly; for other languages use COALESCE(name_xx, name) as fallback
     $lang_col = $lang === 'bs'
         ? 'name AS label'
         : "COALESCE(name_{$lang}, name) AS label";
@@ -54,10 +59,15 @@ if ($path === '/apply' && $method === 'GET') {
             $vehicle_types = [];
         }
     }
+    return ['cities' => $cities, 'vehicle_types' => $vehicle_types];
+}
 
+// GET /apply
+if ($path === '/apply' && $method === 'GET') {
+    $opts = _apply_fetch_options();
     view('public/apply', [
-        'cities'        => $cities,
-        'vehicle_types' => $vehicle_types,
+        'cities'        => $opts['cities'],
+        'vehicle_types' => $opts['vehicle_types'],
         'error'         => flash_get('apply_error'),
     ]);
     exit;
@@ -82,68 +92,78 @@ if ($path === '/apply' && $method === 'POST') {
     $referral_code = trim((string)($_POST['referral_code'] ?? ''));
     $kvkk          = !empty($_POST['kvkk']);
 
-    // Basic validation
+    // Collect the first validation error (if any)
+    $error = '';
+
     if ($name === '' || $email === '' || $phone === '') {
-        flash_set('apply_error', 'error.required_fields');
-        redirect('/apply');
+        $error = 'error.required_fields';
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = 'error.invalid_email';
+    } elseif (!$kvkk) {
+        $error = 'error.kvkk_required';
     }
 
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        flash_set('apply_error', 'error.invalid_email');
-        redirect('/apply');
-    }
-
-    if (!$kvkk) {
-        flash_set('apply_error', 'error.kvkk_required');
-        redirect('/apply');
-    }
-
-    try {
-        // Build insert dynamically so older/newer schemas continue to accept submissions
-        $existing_columns = [];
-        foreach (db()->query('SHOW COLUMNS FROM applications')->fetchAll() as $row) {
-            if (!empty($row['Field'])) {
-                $existing_columns[] = (string) $row['Field'];
+    // Attempt DB insert only when validation passed
+    if ($error === '') {
+        try {
+            // Build insert dynamically so older/newer schemas continue to accept submissions
+            $existing_columns = [];
+            foreach (db()->query('SHOW COLUMNS FROM applications')->fetchAll() as $row) {
+                if (!empty($row['Field'])) {
+                    $existing_columns[] = (string) $row['Field'];
+                }
             }
-        }
 
-        $value_map = [
-            'name'          => $name,
-            'email'         => $email,
-            'phone'         => $phone,
-            'city'          => $city,
-            'vehicle_type'  => $vehicle_type,
-            'message'       => $message,
-            'referral_code' => $referral_code,
-        ];
+            $value_map = [
+                'name'          => $name,
+                'email'         => $email,
+                'phone'         => $phone,
+                'city'          => $city,
+                'vehicle_type'  => $vehicle_type,
+                'message'       => $message,
+                'referral_code' => $referral_code,
+            ];
 
-        // Required minimum for this endpoint
-        if (!in_array('name', $existing_columns, true) ||
-            !in_array('email', $existing_columns, true) ||
-            !in_array('phone', $existing_columns, true)) {
-            throw new PDOException('applications table missing required columns');
-        }
-
-        $insert_columns = [];
-        $params = [];
-        foreach ($value_map as $col => $val) {
-            if (in_array($col, $existing_columns, true)) {
-                $insert_columns[] = $col;
-                $params[":" . $col] = $val;
+            // Required minimum for this endpoint
+            if (!in_array('name', $existing_columns, true) ||
+                !in_array('email', $existing_columns, true) ||
+                !in_array('phone', $existing_columns, true)) {
+                throw new PDOException('applications table missing required columns');
             }
-        }
 
-        $placeholders = array_map(static fn(string $col): string => ':' . $col, $insert_columns);
-        $sql = 'INSERT INTO applications (' . implode(', ', $insert_columns) . ')
-                VALUES (' . implode(', ', $placeholders) . ')';
-        $stmt = db()->prepare($sql);
-        $stmt->execute($params);
-    } catch (PDOException $e) {
-        flash_set('apply_error', 'error.save_failed');
-        redirect('/apply');
+            $insert_columns = [];
+            $params = [];
+            foreach ($value_map as $col => $val) {
+                if (in_array($col, $existing_columns, true)) {
+                    $insert_columns[] = $col;
+                    $params[':' . $col] = $val;
+                }
+            }
+
+            $placeholders = array_map(static fn(string $col): string => ':' . $col, $insert_columns);
+            $sql = 'INSERT INTO applications (' . implode(', ', $insert_columns) . ')
+                    VALUES (' . implode(', ', $placeholders) . ')';
+            $stmt = db()->prepare($sql);
+            $stmt->execute($params);
+
+            // All good — redirect to success page (PRG pattern)
+            redirect('/apply/success');
+        } catch (PDOException $e) {
+            $error = 'error.save_failed';
+        }
     }
 
-    redirect('/apply/success');
+    // Re-render the form in-place so that:
+    //   • $_POST data is still available for field pre-fill
+    //   • The inline script in apply.php restores the user to step 2
+    //   • No round-trip redirect is needed
+    $opts = _apply_fetch_options();
+    view('public/apply', [
+        'cities'        => $opts['cities'],
+        'vehicle_types' => $opts['vehicle_types'],
+        'error'         => $error,
+    ]);
+    exit;
 }
 
 // GET /apply/success
