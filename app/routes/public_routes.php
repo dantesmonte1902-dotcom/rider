@@ -99,43 +99,48 @@ if ($path === '/apply' && $method === 'POST') {
     }
 
     try {
-        $stmt = db()->prepare(
-            'INSERT INTO applications (name, email, phone, city, vehicle_type, message, referral_code)
-             VALUES (:name, :email, :phone, :city, :vtype, :msg, :ref)'
-        );
-        $stmt->execute([
-            ':name'  => $name,
-            ':email' => $email,
-            ':phone' => $phone,
-            ':city'  => $city,
-            ':vtype' => $vehicle_type,
-            ':msg'   => $message,
-            ':ref'   => $referral_code,
-        ]);
-    } catch (PDOException $e) {
-        // Legacy schema fallback: applications.referral_code column may not exist
-        if (stripos($e->getMessage(), 'referral_code') !== false) {
-            try {
-                $stmt = db()->prepare(
-                    'INSERT INTO applications (name, email, phone, city, vehicle_type, message)
-                     VALUES (:name, :email, :phone, :city, :vtype, :msg)'
-                );
-                $stmt->execute([
-                    ':name'  => $name,
-                    ':email' => $email,
-                    ':phone' => $phone,
-                    ':city'  => $city,
-                    ':vtype' => $vehicle_type,
-                    ':msg'   => $message,
-                ]);
-            } catch (PDOException $e) {
-                flash_set('apply_error', 'error.save_failed');
-                redirect('/apply');
+        // Build insert dynamically so older/newer schemas continue to accept submissions
+        $existing_columns = [];
+        foreach (db()->query('SHOW COLUMNS FROM applications')->fetchAll() as $row) {
+            if (!empty($row['Field'])) {
+                $existing_columns[] = (string) $row['Field'];
             }
-        } else {
-            flash_set('apply_error', 'error.save_failed');
-            redirect('/apply');
         }
+
+        $value_map = [
+            'name'          => $name,
+            'email'         => $email,
+            'phone'         => $phone,
+            'city'          => $city,
+            'vehicle_type'  => $vehicle_type,
+            'message'       => $message,
+            'referral_code' => $referral_code,
+        ];
+
+        // Required minimum for this endpoint
+        if (!in_array('name', $existing_columns, true) ||
+            !in_array('email', $existing_columns, true) ||
+            !in_array('phone', $existing_columns, true)) {
+            throw new PDOException('applications table missing required columns');
+        }
+
+        $insert_columns = [];
+        $params = [];
+        foreach ($value_map as $col => $val) {
+            if (in_array($col, $existing_columns, true)) {
+                $insert_columns[] = $col;
+                $params[":" . $col] = $val;
+            }
+        }
+
+        $placeholders = array_map(static fn(string $col): string => ':' . $col, $insert_columns);
+        $sql = 'INSERT INTO applications (' . implode(', ', $insert_columns) . ')
+                VALUES (' . implode(', ', $placeholders) . ')';
+        $stmt = db()->prepare($sql);
+        $stmt->execute($params);
+    } catch (PDOException $e) {
+        flash_set('apply_error', 'error.save_failed');
+        redirect('/apply');
     }
 
     redirect('/apply/success');
