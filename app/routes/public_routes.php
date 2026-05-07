@@ -45,8 +45,14 @@ if ($path === '/apply' && $method === 'GET') {
         $cities        = db()->query("SELECT id, name, {$lang_col} FROM cities ORDER BY label ASC")->fetchAll();
         $vehicle_types = db()->query("SELECT id, name, {$lang_col} FROM vehicle_types ORDER BY label ASC")->fetchAll();
     } catch (PDOException $e) {
-        $cities       = [];
-        $vehicle_types = [];
+        // Fallback for legacy schemas where translated columns do not exist yet
+        try {
+            $cities        = db()->query('SELECT id, name, name AS label FROM cities ORDER BY name ASC')->fetchAll();
+            $vehicle_types = db()->query('SELECT id, name, name AS label FROM vehicle_types ORDER BY name ASC')->fetchAll();
+        } catch (PDOException $e) {
+            $cities        = [];
+            $vehicle_types = [];
+        }
     }
 
     view('public/apply', [
@@ -107,8 +113,29 @@ if ($path === '/apply' && $method === 'POST') {
             ':ref'   => $referral_code,
         ]);
     } catch (PDOException $e) {
-        flash_set('apply_error', 'error.save_failed');
-        redirect('/apply');
+        // Legacy schema fallback: applications.referral_code column may not exist
+        if (stripos($e->getMessage(), 'referral_code') !== false) {
+            try {
+                $stmt = db()->prepare(
+                    'INSERT INTO applications (name, email, phone, city, vehicle_type, message)
+                     VALUES (:name, :email, :phone, :city, :vtype, :msg)'
+                );
+                $stmt->execute([
+                    ':name'  => $name,
+                    ':email' => $email,
+                    ':phone' => $phone,
+                    ':city'  => $city,
+                    ':vtype' => $vehicle_type,
+                    ':msg'   => $message,
+                ]);
+            } catch (PDOException $e) {
+                flash_set('apply_error', 'error.save_failed');
+                redirect('/apply');
+            }
+        } else {
+            flash_set('apply_error', 'error.save_failed');
+            redirect('/apply');
+        }
     }
 
     redirect('/apply/success');
