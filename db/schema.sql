@@ -70,9 +70,23 @@ CREATE TABLE IF NOT EXISTS `applications` (
     `vehicle_type`  VARCHAR(100)                                NOT NULL DEFAULT '',
     `message`       TEXT                                        NOT NULL DEFAULT '',
     `referral_code` VARCHAR(32)                                 NOT NULL DEFAULT '',
+    `admin_note`    TEXT                                        NOT NULL,
     `status`        ENUM('pending','approved','rejected')       NOT NULL DEFAULT 'pending',
     `created_at`    TIMESTAMP                                   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ── Application status history ───────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS `application_status_logs` (
+    `id`             INT UNSIGNED                          NOT NULL AUTO_INCREMENT,
+    `application_id` INT UNSIGNED                          NOT NULL,
+    `old_status`     ENUM('pending','approved','rejected') NOT NULL,
+    `new_status`     ENUM('pending','approved','rejected') NOT NULL,
+    `changed_by`     INT UNSIGNED                          NOT NULL,
+    `changed_at`     TIMESTAMP                             NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    KEY `idx_status_logs_application` (`application_id`),
+    KEY `idx_status_logs_admin` (`changed_by`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 SET foreign_key_checks = 1;
@@ -120,4 +134,21 @@ INSERT IGNORE INTO `vehicle_types` (`name`, `name_en`, `name_tr`, `name_ar`) VAL
 --       ADD COLUMN `name_en` VARCHAR(100) DEFAULT NULL AFTER `name`,
 --       ADD COLUMN `name_tr` VARCHAR(100) DEFAULT NULL AFTER `name_en`,
 --       ADD COLUMN `name_ar` VARCHAR(100) DEFAULT NULL AFTER `name_tr`;
+--
+-- Mevcut applications tablosunda admin notu eksikse:
+--   ALTER TABLE `applications`
+--       ADD COLUMN `admin_note` TEXT NOT NULL AFTER `referral_code`;
+--
+-- Durum geçmişi tablosu eksikse:
+--   CREATE TABLE `application_status_logs` (
+--       `id`             INT UNSIGNED NOT NULL AUTO_INCREMENT,
+--       `application_id` INT UNSIGNED NOT NULL,
+--       `old_status`     ENUM('pending','approved','rejected') NOT NULL,
+--       `new_status`     ENUM('pending','approved','rejected') NOT NULL,
+--       `changed_by`     INT UNSIGNED NOT NULL,
+--       `changed_at`     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+--       PRIMARY KEY (`id`),
+--       KEY `idx_status_logs_application` (`application_id`),
+--       KEY `idx_status_logs_admin` (`changed_by`)
+--   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 -- ══════════════════════════════════════════════════════════════════════════════

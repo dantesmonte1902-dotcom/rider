@@ -157,8 +157,17 @@ define('BASE_PATH', '');         // Domain root'unda (örn: sercan.com.tr)
 | `GET  /rider/admin/login` | Admin giriş sayfası |
 | `POST /rider/admin/login` | Admin giriş işlemi |
 | `GET  /rider/admin/logout` | Oturumu kapat |
+| `GET  /rider/admin` | Dashboard (auth gerektirir) |
 | `GET  /rider/admin/applications` | Başvuru listesi (auth gerektirir) |
+| `GET  /rider/admin/applications/{id}` | Başvuru detay (auth gerektirir) |
 | `POST /rider/admin/applications/{id}/status` | Başvuru durumu güncelle |
+| `POST /rider/admin/applications/{id}/delete` | Başvuru sil |
+| `POST /rider/admin/applications/{id}/note` | Başvuruya admin notu ekle/güncelle |
+| `POST /rider/admin/applications/bulk` | Toplu başvuru işlemleri |
+| `GET  /rider/admin/cities` | Şehir yönetimi (liste/ekle/düzenle/sil) |
+| `GET  /rider/admin/vehicles` | Araç tipi yönetimi (liste/ekle/düzenle/sil) |
+| `GET  /rider/admin/users` | Admin kullanıcı yönetimi |
+| `GET  /rider/admin/settings/password` | Şifre değiştirme |
 
 ---
 

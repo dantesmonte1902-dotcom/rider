@@ -14,13 +14,19 @@
       <div class="brand-badge">R</div>
       <div class="brand-text">Rider Admin</div>
     </div>
-    <div class="lang">
+    <div class="lang" style="flex-wrap:wrap;justify-content:flex-end">
+      <a class="lang-btn <?= ($activePage ?? '') === 'dashboard' ? 'active' : '' ?>"
+         href="<?= e(BASE_PATH) ?>/admin">Dashboard</a>
       <a class="lang-btn <?= ($activePage ?? '') === 'applications' ? 'active' : '' ?>"
          href="<?= e(BASE_PATH) ?>/admin/applications">Başvurular</a>
       <a class="lang-btn <?= ($activePage ?? '') === 'cities' ? 'active' : '' ?>"
          href="<?= e(BASE_PATH) ?>/admin/cities">Şehirler</a>
       <a class="lang-btn <?= ($activePage ?? '') === 'vehicles' ? 'active' : '' ?>"
          href="<?= e(BASE_PATH) ?>/admin/vehicles">Araçlar</a>
+      <a class="lang-btn <?= ($activePage ?? '') === 'users' ? 'active' : '' ?>"
+         href="<?= e(BASE_PATH) ?>/admin/users">Adminler</a>
+      <a class="lang-btn <?= ($activePage ?? '') === 'password' ? 'active' : '' ?>"
+         href="<?= e(BASE_PATH) ?>/admin/settings/password">Şifre</a>
       <a class="lang-btn" href="<?= e(BASE_PATH) ?>/admin/logout">Çıkış</a>
     </div>
   </div>
