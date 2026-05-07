@@ -69,6 +69,7 @@ if ($path === '/apply' && $method === 'GET') {
         'cities'        => $opts['cities'],
         'vehicle_types' => $opts['vehicle_types'],
         'error'         => flash_get('apply_error'),
+        'error_detail'  => '',
     ]);
     exit;
 }
@@ -94,6 +95,7 @@ if ($path === '/apply' && $method === 'POST') {
 
     // Collect the first validation error (if any)
     $error = '';
+    $error_detail = '';
 
     if ($name === '' || $email === '' || $phone === '') {
         $error = 'error.required_fields';
@@ -149,7 +151,11 @@ if ($path === '/apply' && $method === 'POST') {
             // All good — redirect to success page (PRG pattern)
             redirect('/apply/success');
         } catch (PDOException $e) {
+            error_log('[apply] save failed' . (IS_LOCAL ? ': ' . $e->getMessage() : ''));
             $error = 'error.save_failed';
+            if (IS_LOCAL) {
+                $error_detail = $e->getMessage();
+            }
         }
     }
 
@@ -162,6 +168,7 @@ if ($path === '/apply' && $method === 'POST') {
         'cities'        => $opts['cities'],
         'vehicle_types' => $opts['vehicle_types'],
         'error'         => $error,
+        'error_detail'  => $error_detail,
     ]);
     exit;
 }

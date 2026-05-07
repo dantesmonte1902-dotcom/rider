@@ -67,6 +67,11 @@ $_htmlDir = t('html.dir') === 'rtl' ? ' dir="rtl"' : '';
 
             <?php if (!empty($error)): ?>
               <div class="alert"><?= e(t($error)) ?></div>
+              <?php if (!empty($error_detail)): ?>
+                <div class="alert" style="margin-top:10px;font-size:13px;opacity:.9">
+                  <strong>Debug:</strong> <?= e($error_detail) ?>
+                </div>
+              <?php endif; ?>
             <?php endif; ?>
 
             <form method="POST" action="<?= e(BASE_PATH) ?>/apply" autocomplete="off">
